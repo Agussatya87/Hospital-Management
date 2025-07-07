@@ -154,9 +154,9 @@ const HospitalDashboard = () => {
     
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs sm:max-w-2xl w-full mx-2 sm:mx-4">
-          <h2 className="text-lg sm:text-xl font-bold mb-4">Detail Pasien</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white p-6 rounded-lg max-w-2xl w-full mx-4">
+          <h2 className="text-xl font-bold mb-4">Detail Pasien</h2>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">ID Pasien</label>
               <p className="mt-1 text-sm text-gray-900">{selectedPatient.id}</p>
@@ -200,9 +200,9 @@ const HospitalDashboard = () => {
     
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs sm:max-w-2xl w-full mx-2 sm:mx-4">
-          <h2 className="text-lg sm:text-xl font-bold mb-4">Detail Tindakan</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white p-6 rounded-lg max-w-2xl w-full mx-4">
+          <h2 className="text-xl font-bold mb-4">Detail Tindakan</h2>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">ID Tindakan</label>
               <p className="mt-1 text-sm text-gray-900">{selectedAction.id}</p>
@@ -265,17 +265,17 @@ const HospitalDashboard = () => {
   };
 
   const renderDataTable = (data, columns, onRowClick) => (
-    <div className="bg-white rounded-lg shadow overflow-x-auto">
-      <div className="min-w-full">
-        <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
+    <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               {columns.map(column => (
-                <th key={column.key} className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th key={column.key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {column.header}
                 </th>
               ))}
-              <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Aksi
               </th>
             </tr>
@@ -284,11 +284,11 @@ const HospitalDashboard = () => {
             {data.map((item, index) => (
               <tr key={index} className="hover:bg-gray-50">
                 {columns.map(column => (
-                  <td key={column.key} className="px-2 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                  <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {column.render ? column.render(item[column.key], item) : item[column.key]}
                   </td>
                 ))}
-                <td className="px-2 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div className="flex space-x-2">
                     <button 
                       onClick={() => onRowClick(item)}
@@ -329,23 +329,23 @@ const HospitalDashboard = () => {
         ];
         return (
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-bold">Manajemen Data Pasien</h2>
-              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold">Manajemen Data Pasien</h2>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Pasien
               </button>
             </div>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+            <div className="flex space-x-4">
               <div className="flex-1 relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input 
                   type="text" 
                   placeholder="Cari pasien..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <button className="bg-gray-100 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-200 flex items-center text-xs sm:text-sm">
+              <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 flex items-center">
                 <Filter className="w-4 h-4 mr-2" />
                 Filter
               </button>
@@ -386,29 +386,29 @@ const HospitalDashboard = () => {
         ];
         return (
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-bold">Manajemen Tindakan Medis</h2>
-              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold">Manajemen Tindakan Medis</h2>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Tindakan
               </button>
             </div>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+            <div className="flex space-x-4">
               <div className="flex-1 relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input 
                   type="text" 
                   placeholder="Cari tindakan..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm">
+              <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option>Semua Keputusan</option>
                 <option>Setuju</option>
                 <option>Tidak Setuju</option>
                 <option>Pending</option>
               </select>
-              <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm">
+              <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option>Semua Fasilitas</option>
                 <option>Ruang Operasi A</option>
                 <option>Ruang Radiologi</option>
@@ -431,9 +431,9 @@ const HospitalDashboard = () => {
         ];
         return (
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-bold">Rekam Medis Digital</h2>
-              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold">Rekam Medis Digital</h2>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Rekam Medis
               </button>
@@ -460,9 +460,9 @@ const HospitalDashboard = () => {
         ];
         return (
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-bold">Manajemen Dokter</h2>
-              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold">Manajemen Dokter</h2>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Dokter
               </button>
@@ -487,9 +487,9 @@ const HospitalDashboard = () => {
         ];
         return (
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-bold">Manajemen Ruang</h2>
-              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold">Manajemen Ruang</h2>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Ruang
               </button>
@@ -519,46 +519,46 @@ const HospitalDashboard = () => {
 
       {/* Top Navigation Bar */}
       <div className="bg-white shadow mb-8">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-          <nav className="flex flex-nowrap gap-2 overflow-x-auto py-4 justify-center scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex flex-wrap space-x-2 py-4 justify-center">
             <button 
               onClick={() => setActiveTab('overview')}
-              className={`flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg mb-2 ${activeTab === 'overview' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg mb-2 ${activeTab === 'overview' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               <Activity className="w-4 h-4 mr-2" />
               Dashboard Overview
             </button>
             <button 
               onClick={() => setActiveTab('pasien')}
-              className={`flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg mb-2 ${activeTab === 'pasien' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg mb-2 ${activeTab === 'pasien' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               <Users className="w-4 h-4 mr-2" />
               Data Pasien
             </button>
             <button 
               onClick={() => setActiveTab('tindakan')}
-              className={`flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg mb-2 ${activeTab === 'tindakan' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg mb-2 ${activeTab === 'tindakan' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               <Calendar className="w-4 h-4 mr-2" />
               Tindakan Medis
             </button>
             <button 
               onClick={() => setActiveTab('rekam')}
-              className={`flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg mb-2 ${activeTab === 'rekam' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg mb-2 ${activeTab === 'rekam' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               <FileText className="w-4 h-4 mr-2" />
               Rekam Medis
             </button>
             <button 
               onClick={() => setActiveTab('dokter')}
-              className={`flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg mb-2 ${activeTab === 'dokter' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg mb-2 ${activeTab === 'dokter' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               <Stethoscope className="w-4 h-4 mr-2" />
               Manajemen Dokter
             </button>
             <button 
               onClick={() => setActiveTab('ruang')}
-              className={`flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg mb-2 ${activeTab === 'ruang' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg mb-2 ${activeTab === 'ruang' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               <Building className="w-4 h-4 mr-2" />
               Manajemen Ruang
@@ -567,7 +567,7 @@ const HospitalDashboard = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto w-full px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Remove sidebar, just main content */}
         <div className="flex-1">
           {renderContent()}
