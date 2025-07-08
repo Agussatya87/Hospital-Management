@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import logo from './assets/logo.jpg';
-import { Users, Calendar, Stethoscope, FileText, UserCheck, Building, Activity, Clock, CheckCircle, XCircle, AlertCircle, Plus, Search, Filter, Edit, Eye, Menu, X, Trash2 } from 'lucide-react';
+import { Users, Calendar, Stethoscope, FileText, UserCheck, Building, Activity, Clock, CheckCircle, XCircle, AlertCircle, Plus, Search, Filter, Edit, Eye, Menu, X, Trash2, LogOut } from 'lucide-react';
 
-const HospitalDashboard = () => {
+const HospitalDashboard = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [selectedAction, setSelectedAction] = useState(null);
@@ -103,17 +103,17 @@ const HospitalDashboard = () => {
     { id: 'RM003', idPasien: 'P003', idDokter: 'D003', idTindakan: 'T003', idRuang: 'R003', diagnosis: 'Miopia', tanggal: '2025-07-03' }
   ];
 
-  const dokter = [
+  const [dokter, setDokter] = useState([
     { id: 'D001', nama: 'Dr. Hartono', spesialisasi: 'Kardiologi', telpon: '081234567800'},
     { id: 'D002', nama: 'Dr. Sari', spesialisasi: 'Radiologi', telpon: '081234567801'},
     { id: 'D003', nama: 'Dr. Indra', spesialisasi: 'Mata', telpon: '081234567802'}
-  ];
+  ]);
 
-  const ruang = [
+  const [ruang, setRuang] = useState([
     { id: 'R001', namaRuang: 'Ruang Operasi A', status: 'tersedia' },
     { id: 'R002', namaRuang: 'Ruang Radiologi', status: 'terisi' },
     { id: 'R003', namaRuang: 'Ruang Konsultasi 1', status: 'maintenance' }
-  ];
+  ]);
 
   const getStatusColor = (status) => {
     switch(status) {
@@ -638,6 +638,33 @@ const HospitalDashboard = () => {
   // Delete tindakan modal state
   const [deleteTindakanOpen, setDeleteTindakanOpen] = useState(false);
   const [deleteTindakan, setDeleteTindakan] = useState(null);
+  // Add doctor modal state
+  const [addDoctorOpen, setAddDoctorOpen] = useState(false);
+  const [newDoctor, setNewDoctor] = useState({
+    nama: '',
+    spesialisasi: '',
+    telpon: ''
+  });
+  const [addDoctorError, setAddDoctorError] = useState('');
+  // Edit doctor modal state
+  const [editDoctorOpen, setEditDoctorOpen] = useState(false);
+  const [editDoctor, setEditDoctor] = useState(null);
+  // Delete doctor modal state
+  const [deleteDoctorOpen, setDeleteDoctorOpen] = useState(false);
+  const [deleteDoctor, setDeleteDoctor] = useState(null);
+  // Add room modal state
+  const [addRoomOpen, setAddRoomOpen] = useState(false);
+  const [newRoom, setNewRoom] = useState({
+    namaRuang: '',
+    status: 'tersedia'
+  });
+  const [addRoomError, setAddRoomError] = useState('');
+  // Edit room modal state
+  const [editRoomOpen, setEditRoomOpen] = useState(false);
+  const [editRoom, setEditRoom] = useState(null);
+  // Delete room modal state
+  const [deleteRoomOpen, setDeleteRoomOpen] = useState(false);
+  const [deleteRoom, setDeleteRoom] = useState(null);
 
   // Edit Tindakan Modal
   const renderEditTindakanModal = () => {
@@ -736,6 +763,391 @@ const HospitalDashboard = () => {
                 setDeleteTindakanOpen(false);
                 setDeleteTindakan(null);
                 showNotification('Tindakan berhasil dihapus.', 'success');
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Add Doctor Modal
+  const renderAddDoctorModal = () => {
+    if (!addDoctorOpen) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs sm:max-w-2xl w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4">Tambah Dokter Baru</h2>
+          {addDoctorError && <div className="mb-2 text-red-600 text-sm">{addDoctorError}</div>}
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              // Simple validation
+              if (!newDoctor.nama || !newDoctor.spesialisasi || !newDoctor.telpon) {
+                setAddDoctorError('Nama, Spesialisasi, dan Telepon wajib diisi.');
+                showNotification('Gagal menambah dokter. Data wajib diisi.', 'error');
+                return;
+              }
+              // Generate new ID
+              const newId = `D${(dokter.length + 1).toString().padStart(3, '0')}`;
+              setDokter([
+                ...dokter,
+                {
+                  ...newDoctor,
+                  id: newId
+                }
+              ]);
+              setNewDoctor({
+                nama: '', spesialisasi: '', telpon: ''
+              });
+              setAddDoctorError('');
+              setAddDoctorOpen(false);
+              showNotification('Dokter berhasil ditambahkan.', 'success');
+            }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Nama Dokter*</label>
+                <input 
+                  type="text" 
+                  className="mt-1 w-full border rounded px-2 py-1" 
+                  value={newDoctor.nama} 
+                  onChange={e => setNewDoctor({ ...newDoctor, nama: e.target.value })} 
+                  placeholder="Contoh: Dr. Ahmad"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Spesialisasi*</label>
+                <select 
+                  className="mt-1 w-full border rounded px-2 py-1" 
+                  value={newDoctor.spesialisasi} 
+                  onChange={e => setNewDoctor({ ...newDoctor, spesialisasi: e.target.value })}
+                >
+                  <option value="">Pilih Spesialisasi</option>
+                  <option value="Kardiologi">Kardiologi</option>
+                  <option value="Radiologi">Radiologi</option>
+                  <option value="Mata">Mata</option>
+                  <option value="Bedah Umum">Bedah Umum</option>
+                  <option value="Penyakit Dalam">Penyakit Dalam</option>
+                  <option value="Anak">Anak</option>
+                  <option value="Kebidanan">Kebidanan</option>
+                  <option value="Gigi">Gigi</option>
+                  <option value="Kulit">Kulit</option>
+                  <option value="Saraf">Saraf</option>
+                  <option value="Psikiatri">Psikiatri</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Nomor Telepon*</label>
+                <input 
+                  type="tel" 
+                  className="mt-1 w-full border rounded px-2 py-1" 
+                  value={newDoctor.telpon} 
+                  onChange={e => setNewDoctor({ ...newDoctor, telpon: e.target.value })} 
+                  placeholder="Contoh: 081234567890"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-2">
+              <button 
+                type="button" 
+                onClick={() => { setAddDoctorOpen(false); setAddDoctorError(''); }} 
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Batal
+              </button>
+              <button 
+                type="submit" 
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Tambah
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Edit Doctor Modal
+  const renderEditDoctorModal = () => {
+    if (!editDoctorOpen || !editDoctor) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs sm:max-w-2xl w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4">Edit Data Dokter</h2>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              // Simple validation
+              if (!editDoctor.nama || !editDoctor.spesialisasi || !editDoctor.telpon) {
+                showNotification('Gagal mengedit dokter. Data wajib diisi.', 'error');
+                return;
+              }
+              setDokter(dokter.map(d => d.id === editDoctor.id ? editDoctor : d));
+              setEditDoctorOpen(false);
+              setEditDoctor(null);
+              showNotification('Data dokter berhasil diperbarui.', 'success');
+            }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Nama Dokter*</label>
+                <input 
+                  type="text" 
+                  className="mt-1 w-full border rounded px-2 py-1" 
+                  value={editDoctor.nama} 
+                  onChange={e => setEditDoctor({ ...editDoctor, nama: e.target.value })} 
+                  placeholder="Contoh: Dr. Ahmad"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Spesialisasi*</label>
+                <select 
+                  className="mt-1 w-full border rounded px-2 py-1" 
+                  value={editDoctor.spesialisasi} 
+                  onChange={e => setEditDoctor({ ...editDoctor, spesialisasi: e.target.value })}
+                >
+                  <option value="">Pilih Spesialisasi</option>
+                  <option value="Kardiologi">Kardiologi</option>
+                  <option value="Radiologi">Radiologi</option>
+                  <option value="Mata">Mata</option>
+                  <option value="Bedah Umum">Bedah Umum</option>
+                  <option value="Penyakit Dalam">Penyakit Dalam</option>
+                  <option value="Anak">Anak</option>
+                  <option value="Kebidanan">Kebidanan</option>
+                  <option value="Gigi">Gigi</option>
+                  <option value="Kulit">Kulit</option>
+                  <option value="Saraf">Saraf</option>
+                  <option value="Psikiatri">Psikiatri</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Nomor Telepon*</label>
+                <input 
+                  type="tel" 
+                  className="mt-1 w-full border rounded px-2 py-1" 
+                  value={editDoctor.telpon} 
+                  onChange={e => setEditDoctor({ ...editDoctor, telpon: e.target.value })} 
+                  placeholder="Contoh: 081234567890"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-2">
+              <button 
+                type="button" 
+                onClick={() => { setEditDoctorOpen(false); setEditDoctor(null); }} 
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Batal
+              </button>
+              <button 
+                type="submit" 
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Simpan
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Delete Doctor Modal
+  const renderDeleteDoctorModal = () => {
+    if (!deleteDoctorOpen || !deleteDoctor) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4 text-red-700">Hapus Data Dokter</h2>
+          <p className="mb-4">Apakah Anda yakin ingin menghapus dokter <span className="font-semibold">{deleteDoctor.nama}</span>?</p>
+          <div className="flex justify-end space-x-2">
+            <button onClick={() => { setDeleteDoctorOpen(false); setDeleteDoctor(null); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Batal</button>
+            <button
+              onClick={() => {
+                setDokter(dokter.filter(d => d.id !== deleteDoctor.id));
+                setDeleteDoctorOpen(false);
+                setDeleteDoctor(null);
+                showNotification('Data dokter berhasil dihapus.', 'success');
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Add Room Modal
+  const renderAddRoomModal = () => {
+    if (!addRoomOpen) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs sm:max-w-2xl w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4">Tambah Ruang Baru</h2>
+          {addRoomError && <div className="mb-2 text-red-600 text-sm">{addRoomError}</div>}
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              // Simple validation
+              if (!newRoom.namaRuang) {
+                setAddRoomError('Nama ruang wajib diisi.');
+                showNotification('Gagal menambah ruang. Nama ruang wajib diisi.', 'error');
+                return;
+              }
+              // Generate new ID
+              const newId = `R${(ruang.length + 1).toString().padStart(3, '0')}`;
+              setRuang([
+                ...ruang,
+                {
+                  ...newRoom,
+                  id: newId
+                }
+              ]);
+              setNewRoom({
+                namaRuang: '',
+                status: 'tersedia'
+              });
+              setAddRoomError('');
+              setAddRoomOpen(false);
+              showNotification('Ruang berhasil ditambahkan.', 'success');
+            }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Nama Ruang*</label>
+                <input 
+                  type="text" 
+                  className="mt-1 w-full border rounded px-2 py-1" 
+                  value={newRoom.namaRuang} 
+                  onChange={e => setNewRoom({ ...newRoom, namaRuang: e.target.value })} 
+                  placeholder="Contoh: Ruang Operasi B"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Status</label>
+                <select 
+                  className="mt-1 w-full border rounded px-2 py-1" 
+                  value={newRoom.status} 
+                  onChange={e => setNewRoom({ ...newRoom, status: e.target.value })}
+                >
+                  <option value="tersedia">Tersedia</option>
+                  <option value="terisi">Terisi</option>
+                  <option value="maintenance">Maintenance</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-2">
+              <button 
+                type="button" 
+                onClick={() => { setAddRoomOpen(false); setAddRoomError(''); }} 
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Batal
+              </button>
+              <button 
+                type="submit" 
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Tambah
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Edit Room Modal
+  const renderEditRoomModal = () => {
+    if (!editRoomOpen || !editRoom) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs sm:max-w-2xl w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4">Edit Data Ruang</h2>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              // Simple validation
+              if (!editRoom.namaRuang) {
+                showNotification('Gagal mengedit ruang. Nama ruang wajib diisi.', 'error');
+                return;
+              }
+              setRuang(ruang.map(r => r.id === editRoom.id ? editRoom : r));
+              setEditRoomOpen(false);
+              setEditRoom(null);
+              showNotification('Data ruang berhasil diperbarui.', 'success');
+            }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Nama Ruang*</label>
+                <input 
+                  type="text" 
+                  className="mt-1 w-full border rounded px-2 py-1" 
+                  value={editRoom.namaRuang} 
+                  onChange={e => setEditRoom({ ...editRoom, namaRuang: e.target.value })} 
+                  placeholder="Contoh: Ruang Operasi B"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Status</label>
+                <select 
+                  className="mt-1 w-full border rounded px-2 py-1" 
+                  value={editRoom.status} 
+                  onChange={e => setEditRoom({ ...editRoom, status: e.target.value })}
+                >
+                  <option value="tersedia">Tersedia</option>
+                  <option value="terisi">Terisi</option>
+                  <option value="maintenance">Maintenance</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-2">
+              <button 
+                type="button" 
+                onClick={() => { setEditRoomOpen(false); setEditRoom(null); }} 
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Batal
+              </button>
+              <button 
+                type="submit" 
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Simpan
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Delete Room Modal
+  const renderDeleteRoomModal = () => {
+    if (!deleteRoomOpen || !deleteRoom) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4 text-red-700">Hapus Data Ruang</h2>
+          <p className="mb-4">Apakah Anda yakin ingin menghapus ruang <span className="font-semibold">{deleteRoom.namaRuang}</span>?</p>
+          <div className="flex justify-end space-x-2">
+            <button onClick={() => { setDeleteRoomOpen(false); setDeleteRoom(null); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Batal</button>
+            <button
+              onClick={() => {
+                setRuang(ruang.filter(r => r.id !== deleteRoom.id));
+                setDeleteRoomOpen(false);
+                setDeleteRoom(null);
+                showNotification('Data ruang berhasil dihapus.', 'success');
               }}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
@@ -875,12 +1287,15 @@ const HospitalDashboard = () => {
           <div className="space-y-2 sm:space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <h2 className="text-base sm:text-xl font-bold">Manajemen Dokter</h2>
-              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm">
+              <button 
+                className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm"
+                onClick={() => setAddDoctorOpen(true)}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Dokter
               </button>
             </div>
-            {renderDataTable(dokter, doctorColumns, () => {})}
+            {renderDataTable(dokter, doctorColumns, () => {}, (item) => { setEditDoctor(item); setEditDoctorOpen(true); }, (item) => { setDeleteDoctor(item); setDeleteDoctorOpen(true); })}
           </div>
         );
       
@@ -902,12 +1317,15 @@ const HospitalDashboard = () => {
           <div className="space-y-2 sm:space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <h2 className="text-base sm:text-xl font-bold">Manajemen Ruang</h2>
-              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm">
+              <button 
+                className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm"
+                onClick={() => setAddRoomOpen(true)}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Ruang
               </button>
             </div>
-            {renderDataTable(ruang, roomColumns, () => {})}
+            {renderDataTable(ruang, roomColumns, () => {}, (item) => { setEditRoom(item); setEditRoomOpen(true); }, (item) => { setDeleteRoom(item); setDeleteRoomOpen(true); })}
           </div>
         );
       
@@ -938,14 +1356,25 @@ const HospitalDashboard = () => {
               <img src={logo} alt="Hospital Logo" className="w-10 h-10 mr-3 object-cover shadow" />
               <h1 className="text-lg sm:text-2xl font-bold text-gray-900">Klinik Pratama Management System</h1>
             </div>
-            {/* Mobile Nav Button - only visible on mobile */}
-            <button
-              onClick={() => setMobileNavOpen(true)}
-              className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none ml-2"
-              aria-label="Open navigation menu"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
+            <div className="flex items-center space-x-2">
+              {/* Logout Button */}
+              <button
+                onClick={onLogout}
+                className="hidden sm:flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                title="Logout"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </button>
+              {/* Mobile Nav Button - only visible on mobile */}
+              <button
+                onClick={() => setMobileNavOpen(true)}
+                className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none"
+                aria-label="Open navigation menu"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1054,6 +1483,14 @@ const HospitalDashboard = () => {
                   <Building className="w-4 h-4 mr-2" />
                   Manajemen Ruang
                 </button>
+                {/* Logout Button in Mobile Menu */}
+                <button 
+                  onClick={() => { onLogout(); setMobileNavOpen(false); }}
+                  className="flex items-center px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg mt-4"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </button>
               </div>
               {/* Click outside to close */}
               <div className="flex-1" onClick={() => setMobileNavOpen(false)} />
@@ -1077,6 +1514,12 @@ const HospitalDashboard = () => {
       {renderAddTindakanModal()}
       {renderEditTindakanModal()}
       {renderDeleteTindakanModal()}
+      {renderAddDoctorModal()}
+      {renderEditDoctorModal()}
+      {renderDeleteDoctorModal()}
+      {renderAddRoomModal()}
+      {renderEditRoomModal()}
+      {renderDeleteRoomModal()}
     </div>
   );
 };
@@ -1142,7 +1585,7 @@ function App() {
     return <LoginScreen onLogin={() => setLoggedIn(true)} />;
   }
 
-  return <HospitalDashboard />;
+  return <HospitalDashboard onLogout={() => setLoggedIn(false)} />;
 }
 
 export default App; 
