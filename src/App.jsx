@@ -1,27 +1,55 @@
 import React, { useState } from 'react';
-import { Users, Calendar, Stethoscope, FileText, UserCheck, Building, Activity, Clock, CheckCircle, XCircle, AlertCircle, Plus, Search, Filter, Edit, Eye, Menu, X } from 'lucide-react';
+import logo from './assets/logo.jpg';
+import { Users, Calendar, Stethoscope, FileText, UserCheck, Building, Activity, Clock, CheckCircle, XCircle, AlertCircle, Plus, Search, Filter, Edit, Eye, Menu, X, Trash2 } from 'lucide-react';
 
 const HospitalDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [selectedAction, setSelectedAction] = useState(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-  // Sample data
-  const stats = {
-    activePasien: 156,
-    tindakanHariIni: 42,
-    ruangTersedia: 8,
-    dokterBertugas: 24
-  };
-
-  const patients = [
-    { id: 'P001', nama: 'Ahmad Wijaya', jenisKelamin: 'L', pekerjaan: 'Pengusaha', tempatLahir: 'Jakarta', tanggalLahir: '1980-01-01', umur: 45, telpon: '081234567890', alamat: 'Jl. Merdeka No. 10', tanggalDaftar: '2025-01-01' },
-    { id: 'P002', nama: 'Siti Nurhaliza', jenisKelamin: 'P', pekerjaan: 'Pedagang', tempatLahir: 'Surabaya', tanggalLahir: '1985-05-15', umur: 32, telpon: '081234567891', alamat: 'Jl. Sudirman No. 25', tanggalDaftar: '2025-02-01' },
-    { id: 'P003', nama: 'Budi Santoso', jenisKelamin: 'L', pekerjaan: 'Pengusaha', tempatLahir: 'Bandung', tanggalLahir: '1990-10-20', umur: 28, telpon: '081234567892', alamat: 'Jl. Thamrin No. 15', tanggalDaftar: '2025-03-01' }
-  ];
-
-  const tindakan = [
+  const [patientSearch, setPatientSearch] = useState('');
+  const [addPatientOpen, setAddPatientOpen] = useState(false);
+  const [patients, setPatients] = useState([
+    { id: 'P001', nama: 'Ahmad Wijaya', jenisKelamin: 'L', pekerjaan: 'Pengusaha', tempatLahir: 'Jakarta', tanggalLahir: '1980-01-01', telpon: '081234567890', alamat: 'Jl. Merdeka No. 10', tanggalDaftar: '2025-01-01' },
+    { id: 'P002', nama: 'Siti Nurhaliza', jenisKelamin: 'P', pekerjaan: 'Pedagang', tempatLahir: 'Surabaya', tanggalLahir: '1985-05-15', telpon: '081234567891', alamat: 'Jl. Sudirman No. 25', tanggalDaftar: '2025-02-01' },
+    { id: 'P003', nama: 'Budi Santoso', jenisKelamin: 'L', pekerjaan: 'Pengusaha', tempatLahir: 'Bandung', tanggalLahir: '1990-10-20', telpon: '081234567892', alamat: 'Jl. Thamrin No. 15', tanggalDaftar: '2025-03-01' }
+  ]);
+  const [newPatient, setNewPatient] = useState({
+    nama: '',
+    jenisKelamin: '',
+    pekerjaan: '',
+    tempatLahir: '',
+    tanggalLahir: '',
+    telpon: '',
+    alamat: '',
+    tanggalDaftar: ''
+  });
+  const [addPatientError, setAddPatientError] = useState('');
+  // Edit patient modal state
+  const [editPatientOpen, setEditPatientOpen] = useState(false);
+  const [editPatient, setEditPatient] = useState(null);
+  // Notification state
+  const [notification, setNotification] = useState({ message: '', type: '' });
+  // Delete patient modal state
+  const [deletePatientOpen, setDeletePatientOpen] = useState(false);
+  const [deletePatient, setDeletePatient] = useState(null);
+  // Add state for tindakan (procedure) search
+  const [procedureSearch, setProcedureSearch] = useState('');
+  // Add Tindakan modal state
+  const [addTindakanOpen, setAddTindakanOpen] = useState(false);
+  const [newTindakan, setNewTindakan] = useState({
+    idPasien: '',
+    kriteria: '',
+    tindakan: '',
+    dokter: '',
+    dokterId: '',
+    keputusanKeluarga: '',
+    fasilitas: '',
+    status: 'terjadwal',
+    tanggal: ''
+  });
+  const [addTindakanError, setAddTindakanError] = useState('');
+  const [tindakan, setTindakan] = useState([
     { 
       id: 'T001', 
       idPasien: 'P001', 
@@ -32,8 +60,7 @@ const HospitalDashboard = () => {
       keputusanKeluarga: 'setuju',
       fasilitas: 'Ruang Operasi A',
       status: 'terjadwal',
-      tanggal: '2025-07-08',
-      waktu: '09:00'
+      tanggal: '2025-07-08'
     },
     { 
       id: 'T002', 
@@ -45,8 +72,8 @@ const HospitalDashboard = () => {
       keputusanKeluarga: 'pending',
       fasilitas: 'Ruang Radiologi',
       status: 'berlangsung',
-      tanggal: '2025-07-07',
-      waktu: '14:30'
+      tanggal: '2025-07-07'
+  
     },
     { 
       id: 'T003', 
@@ -58,10 +85,17 @@ const HospitalDashboard = () => {
       keputusanKeluarga: 'tidak setuju',
       fasilitas: 'Ruang Konsultasi 1',
       status: 'selesai',
-      tanggal: '2025-07-07',
-      waktu: '10:00'
+      tanggal: '2025-07-07'
     }
-  ];
+  ]);
+
+  // Sample data
+  const stats = {
+    activePasien: 156,
+    tindakanHariIni: 42,
+    ruangTersedia: 8,
+    dokterBertugas: 24
+  };
 
   const rekamMedis = [
     { id: 'RM001', idPasien: 'P001', idDokter: 'D001', idTindakan: 'T001', idRuang: 'R001', diagnosis: 'Penyakit Jantung Koroner', tanggal: '2025-07-01' },
@@ -70,9 +104,9 @@ const HospitalDashboard = () => {
   ];
 
   const dokter = [
-    { id: 'D001', nama: 'Dr. Hartono', spesialisasi: 'Kardiologi', telpon: '081234567800', status: 'bertugas' },
-    { id: 'D002', nama: 'Dr. Sari', spesialisasi: 'Radiologi', telpon: '081234567801', status: 'bertugas' },
-    { id: 'D003', nama: 'Dr. Indra', spesialisasi: 'Mata', telpon: '081234567802', status: 'istirahat' }
+    { id: 'D001', nama: 'Dr. Hartono', spesialisasi: 'Kardiologi', telpon: '081234567800'},
+    { id: 'D002', nama: 'Dr. Sari', spesialisasi: 'Radiologi', telpon: '081234567801'},
+    { id: 'D003', nama: 'Dr. Indra', spesialisasi: 'Mata', telpon: '081234567802'}
   ];
 
   const ruang = [
@@ -105,6 +139,12 @@ const HospitalDashboard = () => {
       case 'pending': return <AlertCircle className="w-4 h-4" />;
       default: return null;
     }
+  };
+
+  // Helper to show notification
+  const showNotification = (message, type = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification({ message: '', type: '' }), 3000);
   };
 
   const renderOverview = () => (
@@ -167,16 +207,28 @@ const HospitalDashboard = () => {
               <p className="mt-1 text-sm text-gray-900">{selectedPatient.nama}</p>
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700">Pekerjaan</label>
+              <p className="mt-1 text-sm text-gray-900">{selectedPatient.pekerjaan}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tempat Lahir</label>
+              <p className="mt-1 text-sm text-gray-900">{selectedPatient.tempatLahir}</p>
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
               <p className="mt-1 text-sm text-gray-900">{selectedPatient.jenisKelamin}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Umur</label>
-              <p className="mt-1 text-sm text-gray-900">{selectedPatient.umur} tahun</p>
+              <label className="block text-sm font-medium text-gray-700">Tanggal Lahir</label>
+              <p className="mt-1 text-sm text-gray-900">{selectedPatient.tanggalLahir}</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Telepon</label>
               <p className="mt-1 text-sm text-gray-900">{selectedPatient.telpon}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tanggal Daftar</label>
+              <p className="mt-1 text-sm text-gray-900">{selectedPatient.tanggalDaftar}</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Alamat</label>
@@ -247,10 +299,6 @@ const HospitalDashboard = () => {
               <label className="block text-sm font-medium text-gray-700">Tanggal</label>
               <p className="mt-1 text-sm text-gray-900">{selectedAction.tanggal}</p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Waktu</label>
-              <p className="mt-1 text-sm text-gray-900">{selectedAction.waktu}</p>
-            </div>
           </div>
           <div className="mt-6 flex justify-end">
             <button 
@@ -265,7 +313,183 @@ const HospitalDashboard = () => {
     );
   };
 
-  const renderDataTable = (data, columns, onRowClick) => (
+  const renderAddPatientModal = () => {
+    if (!addPatientOpen) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs sm:max-w-2xl w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4">Tambah Pasien Baru</h2>
+          {addPatientError && <div className="mb-2 text-red-600 text-sm">{addPatientError}</div>}
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              // Simple validation
+              if (!newPatient.nama || !newPatient.jenisKelamin || !newPatient.tanggalLahir) {
+                setAddPatientError('Nama, Jenis Kelamin, dan Tanggal Lahir wajib diisi.');
+                showNotification('Gagal menambah pasien. Data wajib diisi.', 'error');
+                return;
+              }
+              // Generate new ID
+              const newId = `P${(patients.length + 1).toString().padStart(3, '0')}`;
+              setPatients([
+                ...patients,
+                {
+                  ...newPatient,
+                  id: newId,
+                  tanggalDaftar: newPatient.tanggalDaftar || new Date().toISOString().slice(0, 10)
+                }
+              ]);
+              setNewPatient({
+                nama: '', jenisKelamin: '', pekerjaan: '', tempatLahir: '', tanggalLahir: '', telpon: '', alamat: '', tanggalDaftar: ''
+              });
+              setAddPatientError('');
+              setAddPatientOpen(false);
+              showNotification('Pasien berhasil ditambahkan.', 'success');
+            }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Nama*</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={newPatient.nama} onChange={e => setNewPatient({ ...newPatient, nama: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Jenis Kelamin*</label>
+                <select className="mt-1 w-full border rounded px-2 py-1" value={newPatient.jenisKelamin} onChange={e => setNewPatient({ ...newPatient, jenisKelamin: e.target.value })}>
+                  <option value="">Pilih</option>
+                  <option value="L">Laki-laki</option>
+                  <option value="P">Perempuan</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Pekerjaan</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={newPatient.pekerjaan} onChange={e => setNewPatient({ ...newPatient, pekerjaan: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tempat Lahir</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={newPatient.tempatLahir} onChange={e => setNewPatient({ ...newPatient, tempatLahir: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tanggal Lahir*</label>
+                <input type="date" className="mt-1 w-full border rounded px-2 py-1" value={newPatient.tanggalLahir} onChange={e => setNewPatient({ ...newPatient, tanggalLahir: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Telepon</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={newPatient.telpon} onChange={e => setNewPatient({ ...newPatient, telpon: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Alamat</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={newPatient.alamat} onChange={e => setNewPatient({ ...newPatient, alamat: e.target.value })} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Tanggal Daftar</label>
+                <input type="date" className="mt-1 w-full border rounded px-2 py-1" value={newPatient.tanggalDaftar} onChange={e => setNewPatient({ ...newPatient, tanggalDaftar: e.target.value })} />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-2">
+              <button type="button" onClick={() => { setAddPatientOpen(false); setAddPatientError(''); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Batal</button>
+              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Tambah</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  const renderEditPatientModal = () => {
+    if (!editPatientOpen || !editPatient) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs sm:max-w-2xl w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4">Edit Data Pasien</h2>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              // Simple validation
+              if (!editPatient.nama || !editPatient.jenisKelamin || !editPatient.tanggalLahir) {
+                showNotification('Gagal mengedit pasien. Data wajib diisi.', 'error');
+                return;
+              }
+              setPatients(patients.map(p => p.id === editPatient.id ? editPatient : p));
+              setEditPatientOpen(false);
+              setEditPatient(null);
+              showNotification('Data pasien berhasil diperbarui.', 'success');
+            }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Nama*</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={editPatient.nama} onChange={e => setEditPatient({ ...editPatient, nama: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Jenis Kelamin*</label>
+                <select className="mt-1 w-full border rounded px-2 py-1" value={editPatient.jenisKelamin} onChange={e => setEditPatient({ ...editPatient, jenisKelamin: e.target.value })}>
+                  <option value="">Pilih</option>
+                  <option value="L">Laki-laki</option>
+                  <option value="P">Perempuan</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Pekerjaan</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={editPatient.pekerjaan} onChange={e => setEditPatient({ ...editPatient, pekerjaan: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tempat Lahir</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={editPatient.tempatLahir} onChange={e => setEditPatient({ ...editPatient, tempatLahir: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tanggal Lahir*</label>
+                <input type="date" className="mt-1 w-full border rounded px-2 py-1" value={editPatient.tanggalLahir} onChange={e => setEditPatient({ ...editPatient, tanggalLahir: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Telepon</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={editPatient.telpon} onChange={e => setEditPatient({ ...editPatient, telpon: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Alamat</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={editPatient.alamat} onChange={e => setEditPatient({ ...editPatient, alamat: e.target.value })} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Tanggal Daftar</label>
+                <input type="date" className="mt-1 w-full border rounded px-2 py-1" value={editPatient.tanggalDaftar} onChange={e => setEditPatient({ ...editPatient, tanggalDaftar: e.target.value })} />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-2">
+              <button type="button" onClick={() => { setEditPatientOpen(false); setEditPatient(null); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Batal</button>
+              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDeletePatientModal = () => {
+    if (!deletePatientOpen || !deletePatient) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4 text-red-700">Hapus Data Pasien</h2>
+          <p className="mb-4">Apakah Anda yakin ingin menghapus pasien <span className="font-semibold">{deletePatient.nama}</span>?</p>
+          <div className="flex justify-end space-x-2">
+            <button onClick={() => { setDeletePatientOpen(false); setDeletePatient(null); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Batal</button>
+            <button
+              onClick={() => {
+                setPatients(patients.filter(p => p.id !== deletePatient.id));
+                setDeletePatientOpen(false);
+                setDeletePatient(null);
+                showNotification('Data pasien berhasil dihapus.', 'success');
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDataTable = (data, columns, onRowClick, onEditClick, onDeleteClick) => (
     <div className="bg-white rounded-lg shadow overflow-x-auto">
       <div className="min-w-full">
         <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
@@ -297,8 +521,11 @@ const HospitalDashboard = () => {
                     >
                       <Eye className="w-4 h-4" />
                     </button>
-                    <button className="text-green-600 hover:text-green-900">
+                    <button className="text-green-600 hover:text-green-900" onClick={() => onEditClick && onEditClick(item)}>
                       <Edit className="w-4 h-4" />
+                    </button>
+                    <button className="text-red-600 hover:text-red-900" onClick={() => onDeleteClick && onDeleteClick(item)}>
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </td>
@@ -310,6 +537,216 @@ const HospitalDashboard = () => {
     </div>
   );
 
+  const renderAddTindakanModal = () => {
+    if (!addTindakanOpen) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs sm:max-w-2xl w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4">Tambah Tindakan Medis</h2>
+          {addTindakanError && <div className="mb-2 text-red-600 text-sm">{addTindakanError}</div>}
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              // Simple validation
+              if (!newTindakan.idPasien || !newTindakan.tindakan || !newTindakan.dokterId) {
+                setAddTindakanError('ID Pasien, Tindakan, dan Dokter wajib diisi.');
+                showNotification('Gagal menambah tindakan. Data wajib diisi.', 'error');
+                return;
+              }
+              // Generate new ID
+              const newId = `T${(tindakan.length + 1).toString().padStart(3, '0')}`;
+              // Find patient name
+              const pasien = patients.find(p => p.id === newTindakan.idPasien);
+              const dokterObj = dokter.find(d => d.id === newTindakan.dokterId);
+              setTindakan([
+                ...tindakan,
+                {
+                  ...newTindakan,
+                  id: newId,
+                  namaPasien: pasien ? pasien.nama : '',
+                  dokter: dokterObj ? dokterObj.nama : '',
+                  tanggal: newTindakan.tanggal || new Date().toISOString().slice(0, 10),
+                  status: 'terjadwal',
+                }
+              ]);
+              setNewTindakan({
+                idPasien: '', kriteria: '', tindakan: '', dokter: '', dokterId: '', keputusanKeluarga: '', fasilitas: '', status: 'terjadwal', tanggal: ''
+              });
+              setAddTindakanError('');
+              setAddTindakanOpen(false);
+              showNotification('Tindakan berhasil ditambahkan.', 'success');
+            }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">ID Pasien*</label>
+                <select className="mt-1 w-full border rounded px-2 py-1" value={newTindakan.idPasien} onChange={e => setNewTindakan({ ...newTindakan, idPasien: e.target.value })}>
+                  <option value="">Pilih Pasien</option>
+                  {patients.map(p => (
+                    <option key={p.id} value={p.id}>{p.id} - {p.nama}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Kriteria</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={newTindakan.kriteria} onChange={e => setNewTindakan({ ...newTindakan, kriteria: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tindakan*</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={newTindakan.tindakan} onChange={e => setNewTindakan({ ...newTindakan, tindakan: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Dokter*</label>
+                <select className="mt-1 w-full border rounded px-2 py-1" value={newTindakan.dokterId} onChange={e => setNewTindakan({ ...newTindakan, dokterId: e.target.value })}>
+                  <option value="">Pilih Dokter</option>
+                  {dokter.map(d => (
+                    <option key={d.id} value={d.id}>{d.id} - {d.nama}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Keputusan Keluarga</label>
+                <select className="mt-1 w-full border rounded px-2 py-1" value={newTindakan.keputusanKeluarga} onChange={e => setNewTindakan({ ...newTindakan, keputusanKeluarga: e.target.value })}>
+                  <option value="">Pilih</option>
+                  <option value="setuju">Setuju</option>
+                  <option value="tidak setuju">Tidak Setuju</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Fasilitas</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={newTindakan.fasilitas} onChange={e => setNewTindakan({ ...newTindakan, fasilitas: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tanggal</label>
+                <input type="date" className="mt-1 w-full border rounded px-2 py-1" value={newTindakan.tanggal} onChange={e => setNewTindakan({ ...newTindakan, tanggal: e.target.value })} />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-2">
+              <button type="button" onClick={() => { setAddTindakanOpen(false); setAddTindakanError(''); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Batal</button>
+              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Tambah</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Edit tindakan modal state
+  const [editTindakanOpen, setEditTindakanOpen] = useState(false);
+  const [editTindakan, setEditTindakan] = useState(null);
+  // Delete tindakan modal state
+  const [deleteTindakanOpen, setDeleteTindakanOpen] = useState(false);
+  const [deleteTindakan, setDeleteTindakan] = useState(null);
+
+  // Edit Tindakan Modal
+  const renderEditTindakanModal = () => {
+    if (!editTindakanOpen || !editTindakan) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs sm:max-w-2xl w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4">Edit Tindakan Medis</h2>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              if (!editTindakan.idPasien || !editTindakan.tindakan || !editTindakan.dokterId) {
+                showNotification('Gagal mengedit tindakan. Data wajib diisi.', 'error');
+                return;
+              }
+              const pasien = patients.find(p => p.id === editTindakan.idPasien);
+              const dokterObj = dokter.find(d => d.id === editTindakan.dokterId);
+              setTindakan(tindakan.map(t => t.id === editTindakan.id ? {
+                ...editTindakan,
+                namaPasien: pasien ? pasien.nama : '',
+                dokter: dokterObj ? dokterObj.nama : '',
+              } : t));
+              setEditTindakanOpen(false);
+              setEditTindakan(null);
+              showNotification('Tindakan berhasil diperbarui.', 'success');
+            }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">ID Pasien*</label>
+                <select className="mt-1 w-full border rounded px-2 py-1" value={editTindakan.idPasien} onChange={e => setEditTindakan({ ...editTindakan, idPasien: e.target.value })}>
+                  <option value="">Pilih Pasien</option>
+                  {patients.map(p => (
+                    <option key={p.id} value={p.id}>{p.id} - {p.nama}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Kriteria</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={editTindakan.kriteria} onChange={e => setEditTindakan({ ...editTindakan, kriteria: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tindakan*</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={editTindakan.tindakan} onChange={e => setEditTindakan({ ...editTindakan, tindakan: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Dokter*</label>
+                <select className="mt-1 w-full border rounded px-2 py-1" value={editTindakan.dokterId} onChange={e => setEditTindakan({ ...editTindakan, dokterId: e.target.value })}>
+                  <option value="">Pilih Dokter</option>
+                  {dokter.map(d => (
+                    <option key={d.id} value={d.id}>{d.id} - {d.nama}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Keputusan Keluarga</label>
+                <select className="mt-1 w-full border rounded px-2 py-1" value={editTindakan.keputusanKeluarga} onChange={e => setEditTindakan({ ...editTindakan, keputusanKeluarga: e.target.value })}>
+                  <option value="">Pilih</option>
+                  <option value="setuju">Setuju</option>
+                  <option value="tidak setuju">Tidak Setuju</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Fasilitas</label>
+                <input type="text" className="mt-1 w-full border rounded px-2 py-1" value={editTindakan.fasilitas} onChange={e => setEditTindakan({ ...editTindakan, fasilitas: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tanggal</label>
+                <input type="date" className="mt-1 w-full border rounded px-2 py-1" value={editTindakan.tanggal} onChange={e => setEditTindakan({ ...editTindakan, tanggal: e.target.value })} />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-2">
+              <button type="button" onClick={() => { setEditTindakanOpen(false); setEditTindakan(null); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Batal</button>
+              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Delete Tindakan Modal
+  const renderDeleteTindakanModal = () => {
+    if (!deleteTindakanOpen || !deleteTindakan) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 sm:p-6 rounded-lg max-w-xs w-full mx-2 sm:mx-4">
+          <h2 className="text-base sm:text-xl font-bold mb-4 text-red-700">Hapus Tindakan Medis</h2>
+          <p className="mb-4">Apakah Anda yakin ingin menghapus tindakan <span className="font-semibold">{deleteTindakan.tindakan}</span> untuk pasien <span className="font-semibold">{deleteTindakan.namaPasien}</span>?</p>
+          <div className="flex justify-end space-x-2">
+            <button onClick={() => { setDeleteTindakanOpen(false); setDeleteTindakan(null); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Batal</button>
+            <button
+              onClick={() => {
+                setTindakan(tindakan.filter(t => t.id !== deleteTindakan.id));
+                setDeleteTindakanOpen(false);
+                setDeleteTindakan(null);
+                showNotification('Tindakan berhasil dihapus.', 'success');
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch(activeTab) {
       case 'overview':
@@ -320,7 +757,6 @@ const HospitalDashboard = () => {
           { key: 'id', header: 'ID Pasien' },
           { key: 'nama', header: 'Nama' },
           { key: 'jenisKelamin', header: 'Jenis Kelamin' },
-          { key: 'umur', header: 'Umur' },
           { key: 'telpon', header: 'Telepon' },
           { key: 'pekerjaan', header: 'Pekerjaan' },
           { key: 'tempatLahir', header: 'Tempat Lahir' },
@@ -328,11 +764,15 @@ const HospitalDashboard = () => {
           { key: 'tanggalDaftar', header: 'Tanggal Daftar' },
           { key: 'alamat', header: 'Alamat' }
         ];
+        const filteredPatients = patients.filter(p => {
+          const search = patientSearch.toLowerCase();
+          return p.nama.toLowerCase().includes(search);
+        });
         return (
           <div className="space-y-2 sm:space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <h2 className="text-base sm:text-xl font-bold">Manajemen Data Pasien</h2>
-              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm">
+              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm" onClick={() => setAddPatientOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Pasien
               </button>
@@ -342,16 +782,14 @@ const HospitalDashboard = () => {
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input 
                   type="text" 
-                  placeholder="Cari pasien..."
+                  placeholder="Cari berdasarkan nama pasien..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm"
+                  value={patientSearch}
+                  onChange={e => setPatientSearch(e.target.value)}
                 />
               </div>
-              <button className="bg-gray-100 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-200 flex items-center text-xs sm:text-sm">
-                <Filter className="w-4 h-4 mr-2" />
-                Filter
-              </button>
             </div>
-            {renderDataTable(patients, patientColumns, setSelectedPatient)}
+            {renderDataTable(filteredPatients, patientColumns, setSelectedPatient, (item) => { setEditPatient(item); setEditPatientOpen(true); }, (item) => { setDeletePatient(item); setDeletePatientOpen(true); })}
           </div>
         );
       
@@ -374,22 +812,15 @@ const HospitalDashboard = () => {
               </div>
             )
           },
-          { key: 'fasilitas', header: 'Fasilitas' },
-          { 
-            key: 'status', 
-            header: 'Status',
-            render: (value) => (
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(value)}`}>
-                {value}
-              </span>
-            )
-          }
+          { key: 'fasilitas', header: 'Fasilitas' }
         ];
+        // Filter tindakan based on procedure search
+        const filteredTindakan = tindakan.filter(t => t.tindakan.toLowerCase().includes(procedureSearch.toLowerCase()));
         return (
           <div className="space-y-2 sm:space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <h2 className="text-base sm:text-xl font-bold">Manajemen Tindakan Medis</h2>
-              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm">
+              <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center text-xs sm:text-sm" onClick={() => setAddTindakanOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Tindakan
               </button>
@@ -399,24 +830,14 @@ const HospitalDashboard = () => {
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input 
                   type="text" 
-                  placeholder="Cari tindakan..."
+                  placeholder="Cari berdasarkan nama tindakan..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm"
+                  value={procedureSearch}
+                  onChange={e => setProcedureSearch(e.target.value)}
                 />
               </div>
-              <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm">
-                <option>Semua Keputusan</option>
-                <option>Setuju</option>
-                <option>Tidak Setuju</option>
-                <option>Pending</option>
-              </select>
-              <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm">
-                <option>Semua Fasilitas</option>
-                <option>Ruang Operasi A</option>
-                <option>Ruang Radiologi</option>
-                <option>Ruang Konsultasi 1</option>
-              </select>
             </div>
-            {renderDataTable(tindakan, actionColumns, setSelectedAction)}
+            {renderDataTable(filteredTindakan, actionColumns, setSelectedAction, (item) => { setEditTindakan({ ...item, dokterId: dokter.find(d => d.nama === item.dokter)?.id || '' }); setEditTindakanOpen(true); }, (item) => { setDeleteTindakan(item); setDeleteTindakanOpen(true); })}
           </div>
         );
       
@@ -448,16 +869,7 @@ const HospitalDashboard = () => {
           { key: 'id', header: 'ID Dokter' },
           { key: 'nama', header: 'Nama' },
           { key: 'spesialisasi', header: 'Spesialisasi' },
-          { key: 'telpon', header: 'Telepon' },
-          { 
-            key: 'status', 
-            header: 'Status',
-            render: (value) => (
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(value)}`}>
-                {value}
-              </span>
-            )
-          }
+          { key: 'telpon', header: 'Telepon' }
         ];
         return (
           <div className="space-y-2 sm:space-y-4">
@@ -504,12 +916,28 @@ const HospitalDashboard = () => {
     }
   };
 
+  // Notification UI
+  const renderNotification = () => {
+    if (!notification.message) return null;
+    return (
+      <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white font-semibold transition-all
+        ${notification.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}
+      >
+        {notification.message}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
+      {renderNotification()}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
           <div className="flex items-center justify-between py-4 sm:py-6">
-            <h1 className="text-lg sm:text-2xl font-bold text-gray-900">Hospital Management System</h1>
+            <div className="flex items-center">
+              <img src={logo} alt="Hospital Logo" className="w-10 h-10 mr-3 object-cover shadow" />
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900">Klinik Pratama Management System</h1>
+            </div>
             {/* Mobile Nav Button - only visible on mobile */}
             <button
               onClick={() => setMobileNavOpen(true)}
@@ -643,11 +1071,77 @@ const HospitalDashboard = () => {
 
       {renderPatientModal()}
       {renderActionModal()}
+      {renderAddPatientModal()}
+      {renderEditPatientModal()}
+      {renderDeletePatientModal()}
+      {renderAddTindakanModal()}
+      {renderEditTindakanModal()}
+      {renderDeleteTindakanModal()}
+    </div>
+  );
+};
+
+// LoginScreen component
+const LoginScreen = ({ onLogin }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Simple demo: accept any non-empty username/password
+    if (username.trim() && password.trim()) {
+      onLogin();
+    } else {
+      setError('Username dan password wajib diisi.');
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md w-full max-w-xs sm:max-w-sm">
+        <div className="flex flex-col items-center mb-4">
+          <img src={logo} alt="Hospital Logo" className="w-17 h-17 mb-2  object-cover shadow" />
+          <h2 className="text-2xl font-bold mb-2 text-center text-blue-700">Login</h2>
+        </div>
+        {error && <div className="mb-4 text-red-600 text-sm">{error}</div>}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-medium mb-1">Username</label>
+          <input
+            type="text"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            autoFocus
+          />
+        </div>
+        <div className="mb-6">
+          <label className="block text-gray-700 text-sm font-medium mb-1">Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold"
+        >
+          Login
+        </button>
+      </form>
     </div>
   );
 };
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  if (!loggedIn) {
+    return <LoginScreen onLogin={() => setLoggedIn(true)} />;
+  }
+
   return <HospitalDashboard />;
 }
 
